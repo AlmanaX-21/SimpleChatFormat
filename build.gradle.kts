@@ -6,6 +6,7 @@ plugins {
 
 group = "me.almana"
 version = "1.0"
+description = "A simple chat format plugin"
 
 repositories {
     mavenCentral()
