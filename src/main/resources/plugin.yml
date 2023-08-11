@@ -1,0 +1,4 @@
+name: SimpleChatFormat
+version: '${version}'
+main: me.almana.simplechatformat.SimpleChatFormat
+api-version: '1.20'
