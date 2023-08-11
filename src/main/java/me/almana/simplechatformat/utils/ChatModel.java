@@ -1,8 +1,8 @@
 package me.almana.simplechatformat.utils;
 
-public class ChatModelClass {
+public class ChatModel {
 
-    public ChatModelClass(String luckPermsGroup, String messageFormat) {
+    public ChatModel(String luckPermsGroup, String messageFormat) {
         this.luckPermsGroup = luckPermsGroup;
         this.messageFormat = messageFormat;
     }

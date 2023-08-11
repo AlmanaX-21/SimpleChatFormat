@@ -1,0 +1,6 @@
+[
+  {
+    "luckPermsGroup": "default",
+    "messageFormat": "<prefix> <displayname><suffix><gray>:<white><message>"
+  }
+]

@@ -1,2 +1,35 @@
-package me.almana.simplechatformat.utils;public class JsonUtils {
+package me.almana.simplechatformat.utils;
+
+import com.google.gson.Gson;
+import me.almana.simplechatformat.SimpleChatFormat;
+import org.bukkit.plugin.Plugin;
+
+import java.io.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class JsonUtils {
+
+    private static Gson gson = new Gson();
+
+    public static Map<String, String> readFormats() throws IOException {
+
+        Plugin plugin = SimpleChatFormat.getPlugin(SimpleChatFormat.class);
+        File file = new File(plugin.getDataFolder().getAbsolutePath() + "/chatmodels.json");
+        if (!file.exists()) {
+
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+        Map<String, String> map = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            ChatModel[] models = gson.fromJson(reader, ChatModel[].class);
+            map = Arrays.stream(models)
+                    .collect(Collectors.toMap(ChatModel::getLuckPermsGroup, ChatModel::getMessageFormat));
+        }
+        return map;
+    }
+
 }
