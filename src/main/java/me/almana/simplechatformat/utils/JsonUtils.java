@@ -1,13 +1,14 @@
 package me.almana.simplechatformat.utils;
 
 import com.google.gson.Gson;
+import com.mojang.serialization.Decoder;
 import me.almana.simplechatformat.SimpleChatFormat;
 import org.bukkit.plugin.Plugin;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JsonUtils {
@@ -32,4 +33,19 @@ public class JsonUtils {
         return map;
     }
 
+    public static void writeFormats(Map<String, String> map) throws IOException {
+
+        Plugin plugin = SimpleChatFormat.getPlugin(SimpleChatFormat.class);
+        File file = new File(plugin.getDataFolder().getAbsolutePath() + "/chatmodels.json");
+
+        List<ChatModel> chatList = map.entrySet().stream()
+                .map(entry -> new ChatModel(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+        try (Writer writer = new FileWriter(file)) {
+            gson.toJson(chatList, writer);
+            writer.flush();
+            plugin.getLogger().info("Formats saved to file.");
+        }
+    }
 }

@@ -58,6 +58,7 @@ public class ChatListener implements Listener {
             event.renderer(handleFormatting(player, player.getUniqueId().toString(), serializer.serialize(message), prefix, suffix));
             return;
         }
+        if (!groupFormatsMap.containsKey(group)) return;
         event.renderer(handleFormatting(player, group, serializer.serialize(message), prefix, suffix));
     }
 

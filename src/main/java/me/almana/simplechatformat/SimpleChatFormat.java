@@ -1,5 +1,6 @@
 package me.almana.simplechatformat;
 
+import me.almana.simplechatformat.commands.FormatsCommand;
 import me.almana.simplechatformat.listeners.ChatListener;
 import me.almana.simplechatformat.utils.JsonUtils;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -35,6 +36,7 @@ public final class SimpleChatFormat extends JavaPlugin {
         }
 
         getServer().getPluginManager().registerEvents(new ChatListener(groupFormatsMap, luckPerms), this);
+        getServer().getPluginCommand("formats").setExecutor(new FormatsCommand(groupFormatsMap, luckPerms));
 
         logger.info("Plugin enabled successfully.");
     }

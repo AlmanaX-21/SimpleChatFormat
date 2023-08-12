@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.almana"
-version = "1.0"
+version = "1.0.0-alpha"
 description = "A simple chat format plugin"
 
 repositories {
