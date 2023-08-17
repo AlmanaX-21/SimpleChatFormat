@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.StringJoiner;
+import java.util.function.Predicate;
+import java.util.logging.Level;
 
 public class FormatsCommand implements TabExecutor {
 
@@ -43,13 +45,12 @@ public class FormatsCommand implements TabExecutor {
         if (args[0].equalsIgnoreCase("add")) {
 
             String groupOrPlayer = args[2];
-            StringBuilder builder = new StringBuilder();
-            String format = "";
+            StringJoiner builder = new StringJoiner(" ");
             for (int i = 3; i < args.length; i++) {
 
-                builder.append(args[i] + " ");
+                builder.add(args[i]);
             }
-            format = new String(builder);
+            String format = builder.toString();
             if (args[1].equalsIgnoreCase("group") && checkIfGroup(groupOrPlayer)) {
 
                 formatAdd(groupOrPlayer, format, sender);
