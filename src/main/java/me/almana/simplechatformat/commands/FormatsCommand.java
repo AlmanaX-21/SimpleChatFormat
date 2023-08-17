@@ -110,15 +110,17 @@ public class FormatsCommand implements TabExecutor {
     private void formatAdd(String groupOrPlayer, String format, CommandSender sender) {
 
         groupFormatsMap.put(groupOrPlayer, format);
-        Bukkit.getScheduler().runTaskAsynchronously(SimpleChatFormat.getPlugin(SimpleChatFormat.class), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 JsonUtils.writeFormats(groupFormatsMap);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                sender.sendRichMessage("<red>Could not save format.");
+                plugin.getLogger().log(Level.SEVERE, "Could not save format.", e);
+                return;
             }
+            sender.sendRichMessage("<green>Added new format for " + groupOrPlayer);
+            sender.sendMessage("Format: " + format);
         });
-        sender.sendRichMessage("<green>Added new format for " + groupOrPlayer);
-        sender.sendMessage("Format: " + format);
     }
 
     private boolean checkIfGroup(String group) {
