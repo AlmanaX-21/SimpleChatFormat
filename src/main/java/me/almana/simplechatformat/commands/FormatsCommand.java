@@ -76,7 +76,7 @@ public class FormatsCommand implements TabExecutor {
                 return true;
             }
             groupFormatsMap.remove(groupOrPlayer);
-            if (groupFormatsMap.size() == 0) {
+            if (groupFormatsMap.isEmpty()) {
 
                 formatAdd("default", "<prefix> <displayname><suffix><gray>:<white><message>", sender);
                 sender.sendRichMessage("<gold>All formats were removed, reverting to defaults");
@@ -134,14 +134,11 @@ public class FormatsCommand implements TabExecutor {
 
     private boolean checkIfPlayer(String playerName) {
 
-        Player player = Bukkit.getPlayerExact(playerName);
-        return player != null;
+        return Bukkit.getPlayerExact(playerName) != null;
     }
 
     private List<String> filterCompletions(List<String> completions, String input) {
         return completions.stream()
-                .filter(completion -> completion.toLowerCase().startsWith(lowerInput))
-                .collect(Collectors.toList());
                 .filter(completionPredicate(input))
                 .toList();
     }
