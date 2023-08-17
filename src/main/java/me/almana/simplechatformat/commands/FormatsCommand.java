@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,10 +21,12 @@ import java.util.stream.Collectors;
 
 public class FormatsCommand implements TabExecutor {
 
-    private Map<String, String> groupFormatsMap;
-    private LuckPerms luckPerms;
+    private final Plugin plugin;
+    private final Map<String, String> groupFormatsMap;
+    private final LuckPerms luckPerms;
 
-    public FormatsCommand(Map<String, String> groupFormatsMap, LuckPerms luckPerms) {
+    public FormatsCommand(Plugin plugin, Map<String, String> groupFormatsMap, LuckPerms luckPerms) {
+        this.plugin = plugin;
         this.groupFormatsMap = groupFormatsMap;
         this.luckPerms = luckPerms;
     }
