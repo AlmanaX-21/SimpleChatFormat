@@ -60,8 +60,8 @@ public class ChatListener implements Listener {
         PlainTextComponentSerializer serializer = PlainTextComponentSerializer.plainText();
         Component message = event.originalMessage();
         String group = user.getPrimaryGroup();
-        String prefix = user.getCachedData().getMetaData().getPrefix() == null ? "": user.getCachedData().getMetaData().getPrefix();
-        String suffix = user.getCachedData().getMetaData().getSuffix() == null ? "": user.getCachedData().getMetaData().getSuffix();
+        String prefix = requireNonNullElse(user.getCachedData().getMetaData().getPrefix(), "");
+        String suffix = requireNonNullElse(user.getCachedData().getMetaData().getSuffix(), "");
         if (groupFormatsMap.containsKey(player.getUniqueId().toString())) {
 
             event.renderer(handleFormatting(player, player.getUniqueId().toString(), serializer.serialize(message), prefix, suffix));
