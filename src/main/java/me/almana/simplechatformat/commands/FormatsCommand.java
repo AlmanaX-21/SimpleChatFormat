@@ -91,17 +91,17 @@ public class FormatsCommand implements TabExecutor {
 
         List<String> completions = new ArrayList<>();
 
-        if (args.length == 1) {
-            completions.addAll(filterCompletions(List.of("add", "remove"), args[0]));
-        } else if (args.length == 2) {
-            completions.addAll(filterCompletions(List.of("group", "player"), args[1]));
-        } else if (args.length == 3) {
-            if (args[1].equalsIgnoreCase("group")) {
-                List<String> groupNames = new ArrayList<>();
-                for (Group grp: luckPerms.getGroupManager().getLoadedGroups()) groupNames.add(grp.getName());
-                completions.addAll(filterCompletions(groupNames, args[2]));
-            } else if (args[1].equalsIgnoreCase("player")) {
-                for (Player p: SimpleChatFormat.getPlugin(SimpleChatFormat.class).getServer().getOnlinePlayers()) completions.add(p.getName());
+        switch (args.length) {
+            case 1 -> completions.addAll(filterCompletions(List.of("add", "remove"), args[0]));
+            case 2 -> completions.addAll(filterCompletions(List.of("group", "player"), args[1]));
+            case 3 -> {
+                switch (args[1].toLowerCase()) {
+                    case "group" -> luckPerms.getGroupManager().getLoadedGroups().stream()
+                            .map(Group::getName)
+                            .filter(completionPredicate(args[2]))
+                            .forEach(completions::add);
+                    case "player" -> sender.getServer().getOnlinePlayers().forEach(p -> completions.add(p.getName()));
+                }
             }
         }
         return completions;
@@ -139,9 +139,15 @@ public class FormatsCommand implements TabExecutor {
     }
 
     private List<String> filterCompletions(List<String> completions, String input) {
-        String lowerInput = input.toLowerCase();
         return completions.stream()
                 .filter(completion -> completion.toLowerCase().startsWith(lowerInput))
                 .collect(Collectors.toList());
+                .filter(completionPredicate(input))
+                .toList();
+    }
+
+    private Predicate<String> completionPredicate(String input){
+        String lowerInput = input.toLowerCase();
+        return completion -> completion.toLowerCase().startsWith(lowerInput);
     }
 }
