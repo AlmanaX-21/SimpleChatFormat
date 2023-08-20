@@ -41,11 +41,6 @@ public final class SimpleChatFormat extends JavaPlugin {
         logger.info("Plugin enabled successfully.");
     }
 
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-    }
-
     private LuckPerms luckpermSetup() {
 
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
