@@ -67,7 +67,12 @@ public class ChatListener implements Listener {
             event.renderer(handleFormatting(player, player.getUniqueId().toString(), serializer.serialize(message), prefix, suffix));
             return;
         }
-        if (!groupFormatsMap.containsKey(group)) return;
+        if (!groupFormatsMap.containsKey(group)) {
+
+            event.setCancelled(true);
+            player.sendRichMessage("<red>Something went wrong witj chat formatting...");
+            plugin.getLogger().severe("Group information not found.");
+        }
         event.renderer(handleFormatting(player, group, serializer.serialize(message), prefix, suffix));
     }
 
