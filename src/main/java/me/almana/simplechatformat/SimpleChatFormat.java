@@ -35,8 +35,8 @@ public final class SimpleChatFormat extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
-        getServer().getPluginManager().registerEvents(new ChatListener(groupFormatsMap, luckPerms), this);
-        getServer().getPluginCommand("formats").setExecutor(new FormatsCommand(groupFormatsMap, luckPerms));
+        getServer().getPluginManager().registerEvents(new ChatListener(this, groupFormatsMap, luckPerms), this);
+        getServer().getPluginCommand("formats").setExecutor(new FormatsCommand(this, groupFormatsMap, luckPerms));
 
         logger.info("Plugin enabled successfully.");
     }

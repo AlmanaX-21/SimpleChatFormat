@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,14 +17,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.StringJoiner;
+import java.util.function.Predicate;
+import java.util.logging.Level;
 
 public class FormatsCommand implements TabExecutor {
 
-    private Map<String, String> groupFormatsMap;
-    private LuckPerms luckPerms;
+    private final Plugin plugin;
+    private final Map<String, String> groupFormatsMap;
+    private final LuckPerms luckPerms;
 
-    public FormatsCommand(Map<String, String> groupFormatsMap, LuckPerms luckPerms) {
+    public FormatsCommand(Plugin plugin, Map<String, String> groupFormatsMap, LuckPerms luckPerms) {
+        this.plugin = plugin;
         this.groupFormatsMap = groupFormatsMap;
         this.luckPerms = luckPerms;
     }
@@ -40,13 +45,12 @@ public class FormatsCommand implements TabExecutor {
         if (args[0].equalsIgnoreCase("add")) {
 
             String groupOrPlayer = args[2];
-            StringBuilder builder = new StringBuilder();
-            String format = "";
+            StringJoiner builder = new StringJoiner(" ");
             for (int i = 3; i < args.length; i++) {
 
-                builder.append(args[i] + " ");
+                builder.add(args[i]);
             }
-            format = new String(builder);
+            String format = builder.toString();
             if (args[1].equalsIgnoreCase("group") && checkIfGroup(groupOrPlayer)) {
 
                 formatAdd(groupOrPlayer, format, sender);
@@ -72,7 +76,7 @@ public class FormatsCommand implements TabExecutor {
                 return true;
             }
             groupFormatsMap.remove(groupOrPlayer);
-            if (groupFormatsMap.size() == 0) {
+            if (groupFormatsMap.isEmpty()) {
 
                 formatAdd("default", "<prefix> <displayname><suffix><gray>:<white><message>", sender);
                 sender.sendRichMessage("<gold>All formats were removed, reverting to defaults");
@@ -87,17 +91,17 @@ public class FormatsCommand implements TabExecutor {
 
         List<String> completions = new ArrayList<>();
 
-        if (args.length == 1) {
-            completions.addAll(filterCompletions(List.of("add", "remove"), args[0]));
-        } else if (args.length == 2) {
-            completions.addAll(filterCompletions(List.of("group", "player"), args[1]));
-        } else if (args.length == 3) {
-            if (args[1].equalsIgnoreCase("group")) {
-                List<String> groupNames = new ArrayList<>();
-                for (Group grp: luckPerms.getGroupManager().getLoadedGroups()) groupNames.add(grp.getName());
-                completions.addAll(filterCompletions(groupNames, args[2]));
-            } else if (args[1].equalsIgnoreCase("player")) {
-                for (Player p: SimpleChatFormat.getPlugin(SimpleChatFormat.class).getServer().getOnlinePlayers()) completions.add(p.getName());
+        switch (args.length) {
+            case 1 -> completions.addAll(filterCompletions(List.of("add", "remove"), args[0]));
+            case 2 -> completions.addAll(filterCompletions(List.of("group", "player"), args[1]));
+            case 3 -> {
+                switch (args[1].toLowerCase()) {
+                    case "group" -> luckPerms.getGroupManager().getLoadedGroups().stream()
+                            .map(Group::getName)
+                            .filter(completionPredicate(args[2]))
+                            .forEach(completions::add);
+                    case "player" -> sender.getServer().getOnlinePlayers().forEach(p -> completions.add(p.getName()));
+                }
             }
         }
         return completions;
@@ -106,15 +110,17 @@ public class FormatsCommand implements TabExecutor {
     private void formatAdd(String groupOrPlayer, String format, CommandSender sender) {
 
         groupFormatsMap.put(groupOrPlayer, format);
-        Bukkit.getScheduler().runTaskAsynchronously(SimpleChatFormat.getPlugin(SimpleChatFormat.class), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 JsonUtils.writeFormats(groupFormatsMap);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                sender.sendRichMessage("<red>Could not save format.");
+                plugin.getLogger().log(Level.SEVERE, "Could not save format.", e);
+                return;
             }
+            sender.sendRichMessage("<green>Added new format for " + groupOrPlayer);
+            sender.sendMessage("Format: " + format);
         });
-        sender.sendRichMessage("<green>Added new format for " + groupOrPlayer);
-        sender.sendMessage("Format: " + format);
     }
 
     private boolean checkIfGroup(String group) {
@@ -128,14 +134,17 @@ public class FormatsCommand implements TabExecutor {
 
     private boolean checkIfPlayer(String playerName) {
 
-        Player player = Bukkit.getPlayerExact(playerName);
-        return player != null;
+        return Bukkit.getPlayerExact(playerName) != null;
     }
 
     private List<String> filterCompletions(List<String> completions, String input) {
-        String lowerInput = input.toLowerCase();
         return completions.stream()
-                .filter(completion -> completion.toLowerCase().startsWith(lowerInput))
-                .collect(Collectors.toList());
+                .filter(completionPredicate(input))
+                .toList();
+    }
+
+    private Predicate<String> completionPredicate(String input){
+        String lowerInput = input.toLowerCase();
+        return completion -> completion.toLowerCase().startsWith(lowerInput);
     }
 }

@@ -15,20 +15,27 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+
+import static java.util.Objects.requireNonNullElse;
 
 public class ChatListener implements Listener {
 
+    private final Plugin plugin;
     private final Map<String, String> groupFormatsMap;
     private final LuckPerms luckPerms;
     private final Cache<String, String> groupFormatCache;
     private final Cache<UUID, User> userCache;
 
-    public ChatListener(Map<String, String> groupFormatsMap, LuckPerms luckPerms) {
+    public ChatListener(Plugin plugin, Map<String, String> groupFormatsMap, LuckPerms luckPerms) {
+        this.plugin = plugin;
         this.groupFormatsMap = groupFormatsMap;
         this.luckPerms = luckPerms;
         this.groupFormatCache = CacheBuilder.newBuilder()
@@ -43,22 +50,29 @@ public class ChatListener implements Listener {
     public void onChat(AsyncChatEvent event) {
 
         Player player = event.getPlayer();
-        User user = userCache.getIfPresent(player.getUniqueId());
-        if (user == null) {
-            user = luckPerms.getUserManager().getUser(player.getUniqueId());
-            userCache.put(player.getUniqueId(), user);
+        User user;
+        try {
+            user = userCache.get(player.getUniqueId(), () -> luckPerms.getUserManager().getUser(player.getUniqueId()));
+        } catch (ExecutionException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not retrieve luckperms  user", e);
+            return;
         }
         PlainTextComponentSerializer serializer = PlainTextComponentSerializer.plainText();
         Component message = event.originalMessage();
         String group = user.getPrimaryGroup();
-        String prefix = user.getCachedData().getMetaData().getPrefix() == null ? "": user.getCachedData().getMetaData().getPrefix();
-        String suffix = user.getCachedData().getMetaData().getSuffix() == null ? "": user.getCachedData().getMetaData().getSuffix();
+        String prefix = requireNonNullElse(user.getCachedData().getMetaData().getPrefix(), "");
+        String suffix = requireNonNullElse(user.getCachedData().getMetaData().getSuffix(), "");
         if (groupFormatsMap.containsKey(player.getUniqueId().toString())) {
 
             event.renderer(handleFormatting(player, player.getUniqueId().toString(), serializer.serialize(message), prefix, suffix));
             return;
         }
-        if (!groupFormatsMap.containsKey(group)) return;
+        if (!groupFormatsMap.containsKey(group)) {
+
+            event.setCancelled(true);
+            player.sendRichMessage("<red>Something went wrong witj chat formatting...");
+            plugin.getLogger().severe("Group information not found.");
+        }
         event.renderer(handleFormatting(player, group, serializer.serialize(message), prefix, suffix));
     }
 
