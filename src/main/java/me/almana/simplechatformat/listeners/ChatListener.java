@@ -70,7 +70,7 @@ public class ChatListener implements Listener {
         if (!groupFormatsMap.containsKey(group)) {
 
             event.setCancelled(true);
-            player.sendRichMessage("<red>Something went wrong witj chat formatting...");
+            player.sendRichMessage("<red>Something went wrong with chat formatting...");
             plugin.getLogger().severe("Group information not found.");
         }
         event.renderer(handleFormatting(player, group, serializer.serialize(message), prefix, suffix));
