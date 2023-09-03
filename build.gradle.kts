@@ -5,22 +5,22 @@ plugins {
 }
 
 group = "me.almana"
-version = "1.1.1-beta"
+version = "1.1.3-alpha"
 description = "A simple chat format plugin"
 
 repositories {
     mavenCentral()
     maven("papermc-repo") {
         url = uri("https://repo.papermc.io/repository/maven-public/")
-    }
-    maven("sonatype") {
         url = uri("https://oss.sonatype.org/content/groups/public/")
+        url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly("net.luckperms:api:5.4")
+    compileOnly("me.clip:placeholderapi:2.11.3")
     paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
 }
 

@@ -87,6 +87,7 @@ public class ChatListener implements Listener {
         }
 
         String finalFormat = format;
+        format  = format; // PAPI THINGS
         return new ChatRenderer() {
             @Override
             public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer) {
