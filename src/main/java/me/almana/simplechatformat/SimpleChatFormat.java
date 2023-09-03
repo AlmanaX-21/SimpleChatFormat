@@ -28,6 +28,7 @@ public final class SimpleChatFormat extends JavaPlugin {
 
         luckPerms = luckpermSetup();
         logger = this.getLogger();
+        papiHook();
         if (!new File(this.getDataFolder().getAbsolutePath() + "/chatmodels.json").exists()) saveResource("chatmodels.json", false);
         try {
             groupFormatsMap = JsonUtils.readFormats();
@@ -46,6 +47,11 @@ public final class SimpleChatFormat extends JavaPlugin {
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider != null) return luckPerms = provider.getProvider();
         return null;
+    }
+
+    private void papiHook() {
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) logger.info("PlaceholderAPI detected and hooked.");
     }
 
     @NotNull
