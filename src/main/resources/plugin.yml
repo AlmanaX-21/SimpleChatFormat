@@ -4,6 +4,8 @@ main: me.almana.simplechatformat.SimpleChatFormat
 api-version: '1.20'
 depend:
   - LuckPerms
+softdepend:
+  - PlaceholderAPI
 commands:
   formats:
     description: Core command of the plugin
